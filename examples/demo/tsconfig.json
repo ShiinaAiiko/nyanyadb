@@ -1,0 +1,20 @@
+{
+	"compilerOptions": {
+		"target": "ES2015",
+		"module": "amd",
+		"experimentalDecorators": true,
+		// "outDir": "../../MetahorizonLab/MeowWhisper/web-client/node_modules/@nyanyajs/nyanyadb",
+		"outFile": "./src/index.js",
+		// "outDir": "./dist",
+		"rootDir": "./",
+		"declaration": true,
+		// 不允许隐式的 any 类型
+		"removeComments": true,
+		"moduleResolution": "node",
+		"types": ["node"],
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"watch": true,
+	}
+}

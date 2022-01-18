@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"target": "ES2015",
+		"lib": ["es2015", "dom"],
+		"module": "commonjs",
+		"experimentalDecorators": true,
+		// "outDir": "../../MetahorizonLab/MeowWhisper/web-client/node_modules/@nyanyajs/nyanyadb",
+		"outDir": "./examples/react/node_modules/@nyanyajs/nyanyadb",
+		// "outDir": "./examples/demo/src/nyanyadb",
+		// "outFile": "./examples/demo/src/nyanyadb.js",
+		// "outDir": "./dist",
+		"rootDir": "./src",
+		"allowJs": false,
+		"declaration": true,
+		// 不允许隐式的 any 类型
+		"removeComments": true,
+		"moduleResolution": "node",
+		"types": ["node"],
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"watch": true
+	},
+	"include": ["src"]
+}

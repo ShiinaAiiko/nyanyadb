@@ -1,0 +1,20 @@
+{
+	"name": "@nyanyajs/nyanyadb",
+	"version": "1.0.0",
+	"description": "@nyanyajs/nyanyadb，基于IndexedDB，一系列Web浏览器本地持久化存储API。",
+	"main": "./dist/index.js",
+	"scripts": {
+		"build": "tsc"
+	},
+	"devDependencies": {},
+	"author": "shiina_aiiko",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/ShiinaAiiko/nyanyadb.git"
+	},
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/ShiinaAiiko/nyanyadb/issues"
+	},
+	"homepage": "https://github.com/ShiinaAiiko/nyanyadb#readme"
+}
