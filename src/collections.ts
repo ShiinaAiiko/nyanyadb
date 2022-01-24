@@ -1,3 +1,4 @@
+import { ModelOptionsType } from './schema'
 // createTime: 1642428783
 // id: 1
 // isMergeData: false
@@ -19,8 +20,20 @@
 // originalModelName: "userInfo"
 // status: 1
 // version: 2104
-export type CollectionsItem = any
-
-export const runCollectionDB = () => {
-  
+export type CollectionsItem = {
+	id: number
+	isMergeData: boolean
+	lastMergeVersion: number[]
+	model: ModelOptionsType
+	modelName: string
+	options: {
+		deleteOldData: boolean
+		mergeOldData: boolean
+	}
+	originalModelName: string
+	status: number
+	version: number
+	createTime: number
 }
+
+export const runCollectionDB = () => {}

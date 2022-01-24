@@ -38,7 +38,7 @@ const createModels: HandlerFuncType = (IDB) => {
 	// console.log('storeNamesObj', storeNamesObj)
 
 	// 在这里创建该model的集合
-
+	console.log(IDB.models)
 	Object.keys(IDB.models).forEach((_modelName) => {
 		const modelName = IDB.GetModelName(_modelName)
 		const model = IDB.models[_modelName]
@@ -98,6 +98,7 @@ const createModels: HandlerFuncType = (IDB) => {
 		// 	lastModel?.id && !storeNamesObj[_modelName]?.length,
 		// 	storeNamesObj && storeNamesObj[_modelName]
 		// )
+		console.log('getlast', lastModel, storeNamesObj)
 		if (lastModel?.id && storeNamesObj[_modelName]?.length) {
 			const tempRules = IDB.formatRules(model?.rules)
 
@@ -191,8 +192,10 @@ const createModels: HandlerFuncType = (IDB) => {
 	// })
 }
 export const onUpgradeNeeded: HandlerFuncType = (IDB) => {
+	console.log('Start creating a model.')
 	// console.log('onUpgradeNeeded', event)
 	// const IDB = event.target?.IndexedDB
+	console.log(IDB)
 	if (!IDB) return
 	// IDB.db.deleteObjectStore('chatRecords_1')
 	// IDB.db?.deleteObjectStore('chatRecords_5')
@@ -203,7 +206,7 @@ export const onUpgradeNeeded: HandlerFuncType = (IDB) => {
 	// 	autoIncrement: true,
 	// })
 	// 初始化存储集合模型的Store
-	// console.log('版本更新这里', IDB.CollectionDB)
+	// console.log('在这里创建', IDB.CollectionDB)
 	// initCollectionsStore(IDB)
 	createModels(IDB)
 	// deleteModels(IDB)

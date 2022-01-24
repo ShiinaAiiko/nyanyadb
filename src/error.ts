@@ -5,5 +5,6 @@ export enum ErrorType {
 	FILTER_INDEX_KEY_NOT_EXIST = 'The filter key is not the index key.',
 	PRIMARY_KEY_VALUE_NOT_EXIST = 'Primary key value does not exist.',
 	UPDATE_PARAMETER_NOT_EXIST = 'The updated parameter does not exist.',
-	DELETE_QPRAMETER_NOT_EXIST = 'Delete parameter does not exist.',
+	INDEX_KEY_NOT_SPECIFIED = 'Index key not specified.',
+	DELETE_QPRAMETER_NOT_EXIST = 'Deleted parameter does not exist.',
 }

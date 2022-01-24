@@ -9,7 +9,11 @@ import { onVersionChange } from './modules/onversionchange'
 export class NyaNyaDB extends IndexedDB {
 	// public CollectionDB?: IndexedDB
 	// public historicalCollections: CollectionsItem[] = []
-
+	// 未来考虑通过创建时间实现自动删除功能
+	/**
+ * 已知Bug
+1、更新版本后，Model GetAll会出现事务已完成而导致无法查询
+ *  */
 	constructor(options: {
 		databaseName: string
 		version?: number
@@ -22,6 +26,7 @@ export class NyaNyaDB extends IndexedDB {
 			databaseName: options.databaseName,
 			version: options?.version || 1,
 			onUpgradeNeeded(IDB) {
+				console.log(this, IDB)
 				onUpgradeNeeded(IDB)
 				options.onUpgradeNeeded && options.onUpgradeNeeded(IDB)
 			},
@@ -80,6 +85,7 @@ export class NyaNyaDB extends IndexedDB {
 						// console.log('this', this, _this)
 						// (_this.CollectionDB = IDB),
 						// (_this.historicalCollections = historicalCollections),
+						// console.log('RUN!')
 						historicalCollections &&
 							run({
 								isRun: true,
@@ -105,7 +111,7 @@ export class NyaNyaDB extends IndexedDB {
 				options.onVersionChange && options.onVersionChange(IDB)
 			},
 		})
-		// console.log('out', this)
+		// console.log('NyaNyaDB', this)
 		// const _this = this
 
 		this.modelInitHandlers.push(async () => {})

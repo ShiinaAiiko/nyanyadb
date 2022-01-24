@@ -9,9 +9,11 @@ import { CollectionsItem } from './collections'
 // 	target: IDBOpenDBRequest
 // 	indexedDB: IndexedDB
 // }
-export type HandlerFuncType = (IDB: IndexedDB) => void
+export type HandlerFuncType = (IDB: IndexedDB, options?: any) => void
+
 export class IndexedDB {
-  static Schema = Schema
+	static Schema = Schema
+	static Model = Model
 	databaseName: string = ''
 	version: number = 1
 	openDBRequest?: IDBOpenDBRequest
@@ -55,9 +57,12 @@ export class IndexedDB {
 			)
 			// IndexedDB.event.dispatchEvent(new Event('error'))
 		} else {
+			// console.log('options?.RUN', !!options?.RUN, this.databaseName)
 			if (options?.RUN) {
+				// console.log('isRun', this.models, options.databaseName)
+				// const _this = this
 				options?.RUN(({ isRun, CollectionDB, historicalCollections }) => {
-					// console.log('isRun', isRun)
+					// console.log('isRun', isRun, this.models, options.databaseName)
 					if (isRun) {
 						this.CollectionDB = CollectionDB
 						this.historicalCollections = historicalCollections
@@ -86,8 +91,9 @@ export class IndexedDB {
 				this.databaseName,
 				this.version
 			)
+			// console.log('openDBRequest', this.openDBRequest)
 			this.openDBRequest.onerror = (event: any) => {
-				// console.log('onerror', this.openDBRequest?.error)
+				console.error(this.openDBRequest?.error)
 				this.onError && this.onError(this)
 				// this.dispatchEvent('error')
 				// 错误处理
@@ -96,7 +102,7 @@ export class IndexedDB {
 				// console.log(this.databaseName, 'onupgradeneeded')
 				const target: IDBOpenDBRequest = event.target
 				this.db = target.result
-
+				// console.log('onupgradeneeded', this)
 				this.onUpgradeNeeded && this.onUpgradeNeeded(this)
 
 				// this.dispatchEvent('upgradeNeeded')
@@ -188,6 +194,7 @@ export class IndexedDB {
 		if (!this?.db) return undefined
 		const _this = this
 		// storeName = this.GetRunningStoreName(storeName)
+		// console.log(storeName)
 		const transaction = this.db.transaction([storeName], 'readwrite')
 		const store = transaction.objectStore(storeName)
 		const methods = {
@@ -265,6 +272,7 @@ export class IndexedDB {
 							reject(ErrorType.PRIMARY_KEY_VALUE_NOT_EXIST)
 							return
 						}
+						// console.log(doc)
 						const requestUpdate = store.put(doc)
 						requestUpdate.onerror = () => {
 							// console.log(requestUpdate, doc, primaryKeyValue)
@@ -288,6 +296,7 @@ export class IndexedDB {
 			Add<T = any>(value: T, key?: IDBValidKey): Promise<T> {
 				return new Promise((res, rej) => {
 					try {
+						// console.log(value, key)
 						const request = store.add(value, key)
 						request.onsuccess = (event) => {
 							res(value)
@@ -370,6 +379,7 @@ export class IndexedDB {
 						return new Promise((res, rej) => {
 							// console.log('OpenCursor', objectIndex, query, direction, options)
 							const data: T[] = []
+							// console.log('query', query)
 							const cursor = objectIndex.openCursor(query, direction)
 							cursor.onerror = () => {
 								rej(cursor.error)
@@ -455,6 +465,7 @@ export class IndexedDB {
 							try {
 								const request = objectIndex.getAll(query)
 								request.onsuccess = (event: any) => {
+									// console.log(event.target.result, query)
 									res(event.target.result)
 								}
 								request.onerror = () => {
@@ -624,12 +635,14 @@ export class IndexedDB {
 		if (!this?.db) return undefined
 		// console.log('this.db')
 		if (this.db.objectStoreNames) {
-			for (let name of this.db.objectStoreNames) {
-				if (name === storeName) {
-					isExist = true
-					break
-				}
-			}
+			isExist = this.db.objectStoreNames.contains(storeName)
+			// console.log(this.db.objectStoreNames.contains(storeName), '1')
+			// for (let name of this.db.objectStoreNames) {
+			// 	if (name === storeName) {
+			// 		isExist = true
+			// 		break
+			// 	}
+			// }
 		}
 		// console.log('isExist', isExist)
 		if (!isExist) {
@@ -646,6 +659,8 @@ export class IndexedDB {
 	}
 	public CreateModel<T>(schema: Schema<T>, modelName: string) {
 		this.models[modelName] = schema
+		// console.log(schema, modelName)
+		// console.log(this.models, this)
 
 		const createModel = Model.CreateModel(schema, modelName)
 

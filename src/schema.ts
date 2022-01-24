@@ -82,15 +82,27 @@ export class Schema<T = any> {
 					!data[ruleKey] &&
 					!this.rules[ruleKey].default
 				) {
-					err += '“' + ruleKey + '”: Cannot be blank; '
-					return
+					if (this.rules[ruleKey].type.name.toLowerCase() === 'number') {
+						if (data[ruleKey] != 0) {
+							err += '“' + ruleKey + '”: Cannot be blank; '
+							return
+						}
+					} else {
+						err += '“' + ruleKey + '”: Cannot be blank; '
+						return
+					}
 				}
-
 				if (
 					data[ruleKey] &&
 					this.rules[ruleKey].type.name.toLowerCase() !== typeof data[ruleKey]
 				) {
-					err += '“' + ruleKey + '”: Data type error; '
+					if (this.rules[ruleKey].type.name.toLowerCase() === 'array') {
+						if (data[ruleKey].constructor.name !== 'Array') {
+							err += '“' + ruleKey + '”: Data type error; '
+						}
+					} else {
+						err += '“' + ruleKey + '”: Data type error; '
+					}
 				}
 			}
 		})

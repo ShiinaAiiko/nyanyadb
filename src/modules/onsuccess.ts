@@ -3,6 +3,20 @@ import { Schema } from '../schema'
 import { IndexedDB, HandlerFuncType } from '../indexeddb'
 
 import { CollectionsItem } from '../collections'
+const getLastStoreNames = (
+	storeNames: {
+		modelName: string
+		version: number
+		originalModelName: string
+	}[]
+) => {
+	if (!storeNames?.length) {
+		return null
+	}
+	return storeNames?.sort((a, b) => {
+		return b.version - a.version
+	})[0]
+}
 // import { IDBHandlerType } from '../eventTarget'
 const mergeData: HandlerFuncType = async (IDB) => {
 	// 5、再一次遍历模型，检测是否有前任
@@ -10,11 +24,15 @@ const mergeData: HandlerFuncType = async (IDB) => {
 	const collectionsStore = IDB.CollectionDB?.GetObjectStore('collections')
 	const getIndex = collectionsStore?.GetIndex('modelName')
 	let getAllModel = await getIndex?.GetAll()
-	// console.log(getAllModel, IDB.models)
+	// console.log(getAllModel, 'getAllModel')
 	let runCount = 0
-	const runModelInitHandlers = () => {
+	const runModelInitHandlers = async () => {
 		runCount++
 		if (runCount === Object.keys(IDB.models).length) {
+			const historicalCollections =
+				await collectionsStore?.GetAll<CollectionsItem>()
+			// console.log('runModelInitHandlers', historicalCollections)
+			IDB.historicalCollections = historicalCollections
 			IDB.runModelInitHandlers()
 		}
 	}
@@ -25,11 +43,9 @@ const mergeData: HandlerFuncType = async (IDB) => {
 		// console.log(model)
 
 		// 7、筛选出，除了当前自己的所有模型
-
 		let getHistoricalModels = await collectionsStore
 			?.GetIndex('originalModelName')
 			.GetMany(IDBKeyRange.only(_modelName))
-
 		// console.log('getHistoricalModelsOOO', getHistoricalModels, modelName)
 		getHistoricalModels =
 			getHistoricalModels?.filter((item) => {
@@ -180,7 +196,21 @@ const mergeData: HandlerFuncType = async (IDB) => {
 		// // res(true)
 	})
 }
-const addModelCollection: HandlerFuncType = async (IDB) => {
+const addModelCollection: HandlerFuncType = async (
+	IDB,
+	{
+		storeNamesObj,
+	}: {
+		storeNamesObj: {
+			[k: string]: {
+				modelName: string
+				version: number
+				originalModelName: string
+			}[]
+		}
+	}
+) => {
+	// console.log(storeNamesObj)
 	const collectionsStore = IDB.CollectionDB?.GetObjectStore('collections')
 	// 还是提前获取吧
 	const modelsObj: { [k: string]: CollectionsItem[] } = {}
@@ -199,6 +229,13 @@ const addModelCollection: HandlerFuncType = async (IDB) => {
 
 	// 1、遍历当前所有模型
 	Object.keys(IDB.models).forEach(async (_modelName) => {
+		const lastStoreName = getLastStoreNames(storeNamesObj[_modelName])
+		// console.log('lastStoreName', lastStoreName)
+		if (!lastStoreName?.version) {
+			console.error('Model ' + _modelName + ' not created.')
+			return
+		}
+
 		const modelName = IDB.GetModelName(_modelName)
 		const model = IDB.models[_modelName]
 		if (!model.GetPrimaryKey()) {
@@ -207,6 +244,7 @@ const addModelCollection: HandlerFuncType = async (IDB) => {
 			)
 			return
 		}
+
 		// console.log(model)
 		let rules: any = {}
 		let primaryKey = {
@@ -234,9 +272,6 @@ const addModelCollection: HandlerFuncType = async (IDB) => {
 						?.GetIndex('originalModelName')
 						.GetMany(IDBKeyRange.only(_modelName))
 
-					getHistoricalModels = getHistoricalModels?.filter((item) => {
-						return item.modelName !== modelName
-					})
 					// console.log('getHistoricalModels', getHistoricalModels, modelName)
 					// console.log('getHistoricalModels', getHistoricalModels)
 					// 必须有历史模型
@@ -251,6 +286,11 @@ const addModelCollection: HandlerFuncType = async (IDB) => {
 										// const collectionsStore =
 										// 	IDB.CollectionDB?.GetObjectStore('collections')
 										collectionsStore?.Delete(item.id)
+									} else {
+										collectionsStore?.Update(item.id, {
+											...item,
+											status: 0,
+										})
 									}
 								}
 								// IDB.db?.deleteObjectStore(storeName)
@@ -270,20 +310,29 @@ const addModelCollection: HandlerFuncType = async (IDB) => {
 					// 	JSON.stringify(rules) === JSON.stringify(lastModel?.model)
 					// )
 					// 最后一个历史模型存在
+					// console.log('lastStoreName', lastStoreName)
+					// console.log('lastModel', lastModel)
 					if (lastModel?.id) {
-						// 模型一致，无需创建
-						if (JSON.stringify(rules) === JSON.stringify(lastModel?.model)) {
-							return res(true)
-						}
-						// 模型不一致，且版本一致请升级版本
-						if (JSON.stringify(rules) !== JSON.stringify(lastModel?.model)) {
-							if (lastModel.version === IDB.version) {
-								console.error(
-									'The model has changed from the previous version, please change the version number.'
-								)
-								res(false)
-								return
-							} else {
+						// 大于就说明当前的不是最新，需要创建
+						// console.log(lastStoreName.version <= lastModel.version)
+						if (lastStoreName.version <= lastModel.version) {
+							// 模型一致，无需创建
+							// console.log(
+							// 	JSON.stringify(rules) === JSON.stringify(lastModel?.model)
+							// )
+							if (JSON.stringify(rules) === JSON.stringify(lastModel?.model)) {
+								return res(true)
+							}
+							// 模型不一致，且版本一致请升级版本
+							if (JSON.stringify(rules) !== JSON.stringify(lastModel?.model)) {
+								if (lastModel.version === IDB.version) {
+									console.error(
+										'The model has changed from the previous version, please change the version number.'
+									)
+									res(false)
+									return
+								} else {
+								}
 							}
 						}
 					}
@@ -327,5 +376,38 @@ const addModelCollection: HandlerFuncType = async (IDB) => {
 export const onSuccess: HandlerFuncType = (IDB) => {
 	// console.log(IDB, '开始执行Onsuccess')
 	if (!IDB) return
-	addModelCollection(IDB)
+
+	// 获取已创建的集合对象
+	const count: number = IDB.db?.objectStoreNames?.length || 0
+	const storeNamesObj: {
+		[k: string]: {
+			modelName: string
+			version: number
+			originalModelName: string
+		}[]
+	} = {}
+	for (let i = 0; i < count || 0; i++) {
+		// console.log(IDB.db?.objectStoreNames[i])
+		if (IDB.db?.objectStoreNames[i]) {
+			const storeName = IDB.db?.objectStoreNames[i].split('_')[0]
+			if (!storeNamesObj[storeName]) {
+				storeNamesObj[storeName] = [
+					{
+						modelName: IDB.db?.objectStoreNames[i],
+						version: Number(IDB.db?.objectStoreNames[i].split('_')[1]),
+						originalModelName: storeName,
+					},
+				]
+			} else {
+				storeNamesObj[storeName].push({
+					modelName: IDB.db?.objectStoreNames[i],
+					version: Number(IDB.db?.objectStoreNames[i].split('_')[1]),
+					originalModelName: storeName,
+				})
+			}
+		}
+	}
+	addModelCollection(IDB, {
+		storeNamesObj: storeNamesObj,
+	})
 }

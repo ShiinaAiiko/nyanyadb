@@ -15,8 +15,5 @@ export {
 	IndexedDB,
 	ErrorType,
 }
-;((win: Window) => {
-	win['NyaNyaDB'] = NyaNyaDB
-})(window)
 
 export default NyaNyaDB
