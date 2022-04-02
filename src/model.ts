@@ -509,8 +509,8 @@ export class DocumentMethods<T = any> {
 			}
 		})
 	}
-  public async Count() {
-    // console.log(this.filter,await this.Result())
+	public async Count() {
+		// console.log(this.filter,await this.Result())
 		return (await this.Result()).length
 	}
 	public async FindOne<FindOneT = T, F = Object>(
@@ -702,6 +702,7 @@ export class DocumentMethods<T = any> {
 			About?: () => void
 			nMatched: number
 			nModified: number
+			errors?: string[]
 		}>(async (response, reject) => {
 			try {
 				const updateKeys = Object.keys(update)
@@ -735,12 +736,21 @@ export class DocumentMethods<T = any> {
 								// console.log(item)
 								// 4、更新数据
 								updateKeys.forEach((subKey) => {
-									// console.log(subKey)
+									// console.log(subKey, update.hasOwnProperty(subKey))
 									if (update.hasOwnProperty(subKey)) {
-										item[subKey] = update[subKey]
+										if (typeof update[subKey] === 'object') {
+											item[subKey] = JSON.parse(JSON.stringify(update[subKey]))
+                    } else {
+                      item[subKey] =update[subKey]
+                    }
 									}
 								})
-								// console.log(item,update)
+								// console.log(item, update)
+								// console.log(
+								// 	'update',
+								// 	item[this.model.schema.GetPrimaryKey()],
+								// 	item
+								// )
 								updatePromiseAll.push(
 									objectStore.Update(
 										item[this.model.schema.GetPrimaryKey()],
@@ -750,7 +760,8 @@ export class DocumentMethods<T = any> {
 							})
 							Promise.allSettled(updatePromiseAll)
 								.then((value) => {
-									// console.log(value)
+									// console.log('getList', getList)
+									// console.log('value', value)
 									// objectStore.Transaction.abort()
 									response({
 										About: () => {
@@ -760,6 +771,13 @@ export class DocumentMethods<T = any> {
 										nModified: value.filter((item) => {
 											return item.status === 'fulfilled'
 										}).length,
+										errors: value
+											.map((item) => {
+												return item.status === 'rejected' ? item.reason : ''
+											})
+											.filter((item) => {
+												return item
+											}),
 									})
 								})
 								.catch(() => {
@@ -769,6 +787,7 @@ export class DocumentMethods<T = any> {
 										},
 										nMatched: getList.length,
 										nModified: 0,
+										errors: [],
 									})
 								})
 						} else {

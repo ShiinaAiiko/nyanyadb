@@ -386,6 +386,7 @@ export class IndexedDB {
 							}
 							const $rangeKeys = Object.keys(options.range)
 							const $inKeys = Object.keys(options.in)
+							// console.log('inkeys', options.in, $inKeys)
 							let $skip = 0
 							cursor.onsuccess = (event: any) => {
 								let result = event.target.result
@@ -415,14 +416,20 @@ export class IndexedDB {
 										return
 									}
 								}
+								// console.log('inkeys', options.in, $inKeys)
 								if ($inKeys.length) {
+									$in = true
 									$inKeys.some((key) => {
-										console.log(result?.value[key], options.in[key])
-										if (result?.value[key] === options.in[key]) {
-											$in = true
+										// console.log(
+										// 	result?.value[key],
+										// 	options.in[key].indexOf(result?.value[key]) < 0
+										// )
+										if (options.in[key].indexOf(result?.value[key]) < 0) {
+											$in = false
 											return true
 										}
 									})
+									// console.log('inkeys', $in)
 									if (!$in) {
 										result.continue()
 										return
@@ -493,10 +500,10 @@ export class IndexedDB {
 					},
 					Update(key: any, update: any) {
 						return new Promise((res, rej) => {
-							console.log('update', key, update)
+							// console.log('update', key, update)
 
 							var requestGet = store.get(key)
-							console.log(requestGet)
+							// console.log(requestGet)
 							requestGet.onerror = function (event) {
 								console.log('更新报错')
 							}
