@@ -79,7 +79,7 @@ export class Schema<T = any> {
 				}
 				if (
 					this.rules[ruleKey].required &&
-					!data[ruleKey] &&
+					!data.hasOwnProperty(ruleKey) &&
 					!this.rules[ruleKey].default
 				) {
 					if (this.rules[ruleKey].type.name.toLowerCase() === 'number') {

@@ -38,10 +38,10 @@ const createModels: HandlerFuncType = (IDB) => {
 	// console.log('storeNamesObj', storeNamesObj)
 
 	// 在这里创建该model的集合
-	console.log(IDB.models)
-	Object.keys(IDB.models).forEach((_modelName) => {
+	console.log(IDB.schemas)
+	Object.keys(IDB.schemas).forEach((_modelName) => {
 		const modelName = IDB.GetModelName(_modelName)
-		const model = IDB.models[_modelName]
+		const model = IDB.schemas[_modelName]
 		console.log(model)
 		if (!model.GetPrimaryKey()) {
 			console.error(

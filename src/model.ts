@@ -740,9 +740,9 @@ export class DocumentMethods<T = any> {
 									if (update.hasOwnProperty(subKey)) {
 										if (typeof update[subKey] === 'object') {
 											item[subKey] = JSON.parse(JSON.stringify(update[subKey]))
-                    } else {
-                      item[subKey] =update[subKey]
-                    }
+										} else {
+											item[subKey] = update[subKey]
+										}
 									}
 								})
 								// console.log(item, update)
@@ -1206,7 +1206,7 @@ export class DocumentMethods<T = any> {
 	}
 }
 
-class ModelStore {
+export class ModelStore {
 	static models: {
 		[key: string]: Model
 	} = {}
@@ -1223,6 +1223,12 @@ export class Model<T = any> {
 	constructor(options: { schema: Schema; modelName: string }) {
 		this.schema = options.schema
 		this.modelName = options.modelName
+		// this.IDB.models[this.modelName] = this
+
+		// console.log(
+		// 	'this.IDB.model[this.modelName]',
+		// 	this.IDB.models[this.modelName]
+		// )
 	}
 
 	static CreateModel<T>(schema: Schema<T>, modelName: string) {

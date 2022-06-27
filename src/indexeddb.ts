@@ -18,7 +18,7 @@ export class IndexedDB {
 	version: number = 1
 	openDBRequest?: IDBOpenDBRequest
 	db?: IDBDatabase
-	models: {
+	schemas: {
 		[k: string]: Schema
 	} = {}
 	public CollectionDB?: IndexedDB
@@ -298,7 +298,10 @@ export class IndexedDB {
 					try {
 						// console.log(value, key)
 						const request = store.add(value, key)
-						request.onsuccess = (event) => {
+						request.onsuccess = (event: any) => {
+							// console.log('adddddddddddddddddd', value, event)
+							let result = event.target.result
+							value['id'] = result
 							res(value)
 						}
 						request.onerror = (event) => {
@@ -665,7 +668,7 @@ export class IndexedDB {
 		return this.version
 	}
 	public CreateModel<T>(schema: Schema<T>, modelName: string) {
-		this.models[modelName] = schema
+		this.schemas[modelName] = schema
 		// console.log(schema, modelName)
 		// console.log(this.models, this)
 

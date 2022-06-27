@@ -28,7 +28,7 @@ const mergeData: HandlerFuncType = async (IDB) => {
 	let runCount = 0
 	const runModelInitHandlers = async () => {
 		runCount++
-		if (runCount === Object.keys(IDB.models).length) {
+		if (runCount === Object.keys(IDB.schemas).length) {
 			const historicalCollections =
 				await collectionsStore?.GetAll<CollectionsItem>()
 			// console.log('runModelInitHandlers', historicalCollections)
@@ -36,9 +36,9 @@ const mergeData: HandlerFuncType = async (IDB) => {
 			IDB.runModelInitHandlers()
 		}
 	}
-	Object.keys(IDB.models).forEach(async (_modelName) => {
+	Object.keys(IDB.schemas).forEach(async (_modelName) => {
 		const modelName = IDB.GetModelName(_modelName)
-		const model = IDB.models[_modelName]
+		const model = IDB.schemas[_modelName]
 		// console.log(modelName)
 		// console.log(model)
 
@@ -228,7 +228,7 @@ const addModelCollection: HandlerFuncType = async (
 	const addModelPromiseAll: Promise<any>[] = []
 
 	// 1、遍历当前所有模型
-	Object.keys(IDB.models).forEach(async (_modelName) => {
+	Object.keys(IDB.schemas).forEach(async (_modelName) => {
 		const lastStoreName = getLastStoreNames(storeNamesObj[_modelName])
 		// console.log('lastStoreName', lastStoreName)
 		if (!lastStoreName?.version) {
@@ -237,7 +237,7 @@ const addModelCollection: HandlerFuncType = async (
 		}
 
 		const modelName = IDB.GetModelName(_modelName)
-		const model = IDB.models[_modelName]
+		const model = IDB.schemas[_modelName]
 		if (!model.GetPrimaryKey()) {
 			console.error(
 				'[' + _modelName + '] ' + ErrorType.PRIMARY_KEY_VALUE_NOT_EXIST
