@@ -51,7 +51,7 @@ export class IndexedDB {
 		this.databaseName = options.databaseName
 		this.version = options?.version || 1
 
-		if (!window.indexedDB) {
+		if (typeof window === "undefined"||!window.indexedDB) {
 			console.error(
 				"Your browser doesn't support a stable version of IndexedDB. Such and such feature will not be available."
 			)
