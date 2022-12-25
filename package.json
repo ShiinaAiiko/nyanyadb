@@ -4,11 +4,13 @@
 	"description": "@nyanyajs/nyanyadb，基于IndexedDB，一系列Web浏览器本地持久化存储API。",
 	"main": "./dist/index.js",
 	"scripts": {
-		"build": "tsc",
+		"dev": "tsc",
 		"publish": "npm publish --registry https://registry.npm.aiiko.club",
 		"unpublish": "npm unpublish @nyanyajs/nyanyadb@1.0.4  --registry https://registry.npm.aiiko.club"
 	},
-	"devDependencies": {},
+	"devDependencies": {
+		"typescript": "^4.9.3"
+	},
 	"author": "shiina_aiiko",
 	"repository": {
 		"type": "git",

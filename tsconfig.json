@@ -9,14 +9,14 @@
     // macos
 		// "outDir": "../../MetahorizonLab/meow-whisper/meow-whisper-web-client/node_modules/@nyanyajs/nyanyadb/dist",
     // windows11
-		// "outDir": "../../cherrai/meow-whisper/meow-whisper-web-client/node_modules/@nyanyajs/nyanyadb/dist",
+		"outDir": "../../cherrai/meow-whisper/meow-whisper-web-client/node_modules/@nyanyajs/nyanyadb/dist",
 		// "outDir": "../../cherrai/saki-sso/saki-sso-client/node_modules/@nyanyajs/nyanyadb/dist",
  
     // "outDir": "../../MetahorizonLab/MeowWhisper/web-client/node_modules/@nyanyajs/nyanyadb/dist",
 		// "outDir": "./examples/react/node_modules/@nyanyajs/nyanyadb",
 		// "outDir": "./examples/demo/src/nyanyadb",
 		// "outFile": "./examples/demo/src/nyanyadb.js",
-		"outDir": "./dist",
+		// "outDir": "./dist",
 		"rootDir": "./src",
 		"allowJs": false,
 		"declaration": true,

@@ -110,6 +110,7 @@ type MethodName =
 export class DocumentMethods<T = any> {
 	private filter?: Filter<Object> = {}
 	private sort?: Sort
+	private sortKey?: string
 	private model: Model<T | undefined>
 	private limit: Limit = -1
 	private skip: Skip = -1
@@ -171,8 +172,9 @@ export class DocumentMethods<T = any> {
 		this.lookup = this.lookup.concat(lookup)
 		return this
 	}
-	public Sort(sort: Sort) {
+	public Sort(sort: Sort, key?: string) {
 		this.sort = sort
+		key && (this.sortKey = key)
 		return this
 	}
 
@@ -375,16 +377,36 @@ export class DocumentMethods<T = any> {
 										filterObj?.$boundRange,
 										this.getSortDirection(this.sort),
 										{
-											limit: this.limit,
-											skip: this.skip,
+											// 暂时之举、未来可以看看能否进一步优化一下
+											...(this.sortKey
+												? {
+														limit: -1,
+														skip: -1,
+												  }
+												: {
+														limit: this.limit,
+														skip: this.skip,
+												  }),
+
 											in: filterObj.$in || {},
 											range: filterObj.$range || {},
 											// project: this.project,
 										}
 									)
 									.then((data) => {
-										// console.log('res', data)
+										// console.log('resssssssss', filterObj.$indexKey, data)
 										// console.log(this.lookup)
+										// 暂时之举、未来可以看看能否进一步优化一下
+										if (this.sortKey) {
+											data.sort((a, b) => {
+												if (this.sort) {
+													return b[this.sortKey] - a[this.sortKey]
+												} else {
+													return a[this.sortKey] - b[this.sortKey]
+												}
+											})
+											data = data.splice(this.skip, this.limit)
+										}
 										if (!this.lookup.length) {
 											response(
 												DocumentMethods.formatProject<T>(data, this.project)
